@@ -39,9 +39,7 @@ function insertEvent(event) {
 
   stmt.finalize();
 }
-
-// Get
-function getEvents(filters) {
+function getEvents(filters, callback) {
   let query = "SELECT * FROM events WHERE 1=1";
   let params = [];
 
@@ -63,12 +61,14 @@ function getEvents(filters) {
   query += " ORDER BY storedAt DESC LIMIT ? OFFSET ?";
   params.push(Number(filters.limit), Number(filters.offset));
 
-  let rows = [];
-  db.each(query, params, (err, row) => {
-    rows.push(row);
+  db.all(query, params, (err, rows) => {
+    if (err) {
+      console.error(err);
+      return callback([]);
+    }
+    callback(rows);
   });
-
-  return rows;
 }
+
 
 module.exports = { insertEvent, getEvents };

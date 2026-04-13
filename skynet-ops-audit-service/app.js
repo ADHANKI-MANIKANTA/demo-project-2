@@ -1,6 +1,6 @@
 require('dotenv').config();
 const express = require('express');
-const { v4: uuidv4 } = require('uuid');
+const uuidv4 = require('uuid').v4;
 const db = require('./db');
 const logger = require('./logger');
 
@@ -57,17 +57,16 @@ app.post('/events', (req, res) => {
   });
 });
 
-// ✅ GET /events
 app.get('/events', (req, res) => {
   const { tenantId, severity, type, limit = 20, offset = 0 } = req.query;
 
-  const events = db.getEvents({ tenantId, severity, type, limit, offset });
-
-  res.json({
-    items: events,
-    total: events.length,
-    limit: Number(limit),
-    offset: Number(offset)
+  db.getEvents({ tenantId, severity, type, limit, offset }, (events) => {
+    res.json({
+      items: events,
+      total: events.length,
+      limit: Number(limit),
+      offset: Number(offset)
+    });
   });
 });
 
